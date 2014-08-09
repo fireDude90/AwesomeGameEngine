@@ -1,0 +1,70 @@
+﻿<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Awesome Game Engine Demo</title>
+
+    <script src="AwesomeGameEngine.js"></script>
+    <style type="text/css">
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            width: 50%;
+            margin: 2em auto;
+            text-align: center;
+        }
+    </style>
+</head>
+<body onload="init()">
+    <h1>The Awesome Game Engine</h1>
+
+    <canvas width="500" height="500"></canvas>
+
+    <script>
+        var speed = 50;
+        var game;
+        function init() {
+            game = new AwesomeGameEngine.Game();
+
+            var scene = new AwesomeGameEngine.Scene('test');
+            scene.Add(new AwesomeGameEngine.Sprite('obstacle', function () {
+                if (AwesomeGameEngine.Entity.Collides(this, scene.Get('player'))) console.log('collision!');
+            }, AwesomeGameEngine.Images['google'], new AwesomeGameEngine.Vector2(20, 100)));
+            scene.Add(new AwesomeGameEngine.Sprite('player',
+                function (delta) {
+                    // Movement and Keyboard Input
+                    if (AwesomeGameEngine.KeyboardState['UP']) this.Move(AwesomeGameEngine.Directions.Forward, speed * delta);
+                    if (AwesomeGameEngine.KeyboardState['DOWN']) this.Move(AwesomeGameEngine.Directions.Back, speed * delta);
+                    if (AwesomeGameEngine.KeyboardState['RIGHT']) this.Rotation += speed * delta;
+                    if (AwesomeGameEngine.KeyboardState['LEFT']) this.Rotation -= speed * delta;
+
+                    if (AwesomeGameEngine.KeyboardState['Q']) this.Move(AwesomeGameEngine.Directions.Left, speed * delta);
+                    if (AwesomeGameEngine.KeyboardState['E']) this.Move(AwesomeGameEngine.Directions.Right, speed * delta);
+
+                    // Mouse buttons
+                    if (AwesomeGameEngine.MouseState.Buttons.Left) this.Center(AwesomeGameEngine.MouseState.Position);
+                    if (AwesomeGameEngine.MouseState.Buttons.Right) this.Rotation += speed * 5 * delta;
+                }, AwesomeGameEngine.Images['google'], new AwesomeGameEngine.Vector2(10, 10)));
+
+            scene.Add(new AwesomeGameEngine.Entity('soundManager', function (game) {
+                if (AwesomeGameEngine.KeyboardState['P']) {
+                    AwesomeGameEngine.Audio['song'].Start();
+                }
+                if (AwesomeGameEngine.KeyboardState['O']) {
+                    AwesomeGameEngine.Audio['song'].Paused = true;
+                }
+            }));
+
+            game.AddScene(scene);
+            game.SetScene(scene.Name);
+
+            game.Start();
+        }
+    </script>
+
+    <div id="resources">
+        <img src="https://www.google.com/images/srpr/logo11w.png" id="google" />
+        <audio src="https://www.dropbox.com/s/56kmfrsb1aq8s3g/Continuity.mp3?dl=1" id="song"></audio>
+    </div>
+</body>
+</html>
