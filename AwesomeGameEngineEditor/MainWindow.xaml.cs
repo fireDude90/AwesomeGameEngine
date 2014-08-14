@@ -13,6 +13,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using AwesomeGameEngineEditor.Editor;
+
 namespace AwesomeGameEngineEditor {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -20,7 +22,7 @@ namespace AwesomeGameEngineEditor {
     public partial class MainWindow : Window {
         public MainWindow() {
             InitializeComponent();
-            this.EditorView.Content = new EditorView();
+            this.EditorView.Content = new EditorView(this);
         }
     }
 }

@@ -243,6 +243,83 @@ var AwesomeGameEngine;
 })(AwesomeGameEngine || (AwesomeGameEngine = {}));
 var AwesomeGameEngine;
 (function (AwesomeGameEngine) {
+    var MathHelpers = (function () {
+        function MathHelpers() {
+        }
+        MathHelpers.DegreeToRadian = function (angle) {
+            return angle * (Math.PI / 180);
+        };
+        return MathHelpers;
+    })();
+    AwesomeGameEngine.MathHelpers = MathHelpers;
+
+    var Color = (function () {
+        function Color(r, g, b, a) {
+            if (typeof a === "undefined") { a = 255; }
+            this.r = r;
+            this.g = g;
+            this.b = b;
+            this.a = a;
+        }
+        return Color;
+    })();
+    AwesomeGameEngine.Color = Color;
+
+    var Rectangle = (function () {
+        function Rectangle(position, size) {
+            this.position = position;
+            this.size = size;
+        }
+        Rectangle.prototype.Intersects = function (b) {
+            return !(this.position.x > (b.position.x + b.size.x) || (this.position.x + this.size.x) < b.position.x || this.position.y > (b.position.y + b.size.y) || (this.position.y + this.size.y) < b.size.y);
+        };
+
+        Rectangle.prototype.Draw = function (game) {
+            game.Context.beginPath();
+            game.Context.rect(this.position.x, this.position.y, this.size.x, this.size.y);
+            game.Context.lineWidth = 5;
+            game.Context.strokeStyle = 'black';
+            game.Context.stroke();
+            game.Context.closePath();
+        };
+        return Rectangle;
+    })();
+    AwesomeGameEngine.Rectangle = Rectangle;
+
+    var Vector2 = (function () {
+        function Vector2(x, y) {
+            this.x = x;
+            this.y = y;
+        }
+        /** Copies this Vector2 */
+        Vector2.prototype.Clone = function () {
+            return new Vector2(this.x, this.y);
+        };
+
+        /** Adds another Vector2 to this Vector2 */
+        Vector2.prototype.Add = function (b) {
+            this.x += b.x;
+            this.y += b.y;
+        };
+
+        /** Adds two Vector2's together */
+        Vector2.Add = function (a, b) {
+            return new Vector2(a.x + b.x, a.y + b.y);
+        };
+
+        /** Multiplies this Vector2 by a constant*/
+        Vector2.prototype.Multiply = function (c) {
+            this.x *= c;
+            this.y *= c;
+
+            return this;
+        };
+        return Vector2;
+    })();
+    AwesomeGameEngine.Vector2 = Vector2;
+})(AwesomeGameEngine || (AwesomeGameEngine = {}));
+var AwesomeGameEngine;
+(function (AwesomeGameEngine) {
     /**
     * Initializes all the game's resources
     *
@@ -490,81 +567,4 @@ var AwesomeGameEngine;
         return Sprite;
     })(AwesomeGameEngine.Drawable);
     AwesomeGameEngine.Sprite = Sprite;
-})(AwesomeGameEngine || (AwesomeGameEngine = {}));
-var AwesomeGameEngine;
-(function (AwesomeGameEngine) {
-    var MathHelpers = (function () {
-        function MathHelpers() {
-        }
-        MathHelpers.DegreeToRadian = function (angle) {
-            return angle * (Math.PI / 180);
-        };
-        return MathHelpers;
-    })();
-    AwesomeGameEngine.MathHelpers = MathHelpers;
-
-    var Color = (function () {
-        function Color(r, g, b, a) {
-            if (typeof a === "undefined") { a = 255; }
-            this.r = r;
-            this.g = g;
-            this.b = b;
-            this.a = a;
-        }
-        return Color;
-    })();
-    AwesomeGameEngine.Color = Color;
-
-    var Rectangle = (function () {
-        function Rectangle(position, size) {
-            this.position = position;
-            this.size = size;
-        }
-        Rectangle.prototype.Intersects = function (b) {
-            return !(this.position.x > (b.position.x + b.size.x) || (this.position.x + this.size.x) < b.position.x || this.position.y > (b.position.y + b.size.y) || (this.position.y + this.size.y) < b.size.y);
-        };
-
-        Rectangle.prototype.Draw = function (game) {
-            game.Context.beginPath();
-            game.Context.rect(this.position.x, this.position.y, this.size.x, this.size.y);
-            game.Context.lineWidth = 5;
-            game.Context.strokeStyle = 'black';
-            game.Context.stroke();
-            game.Context.closePath();
-        };
-        return Rectangle;
-    })();
-    AwesomeGameEngine.Rectangle = Rectangle;
-
-    var Vector2 = (function () {
-        function Vector2(x, y) {
-            this.x = x;
-            this.y = y;
-        }
-        /** Copies this Vector2 */
-        Vector2.prototype.Clone = function () {
-            return new Vector2(this.x, this.y);
-        };
-
-        /** Adds another Vector2 to this Vector2 */
-        Vector2.prototype.Add = function (b) {
-            this.x += b.x;
-            this.y += b.y;
-        };
-
-        /** Adds two Vector2's together */
-        Vector2.Add = function (a, b) {
-            return new Vector2(a.x + b.x, a.y + b.y);
-        };
-
-        /** Multiplies this Vector2 by a constant*/
-        Vector2.prototype.Multiply = function (c) {
-            this.x *= c;
-            this.y *= c;
-
-            return this;
-        };
-        return Vector2;
-    })();
-    AwesomeGameEngine.Vector2 = Vector2;
 })(AwesomeGameEngine || (AwesomeGameEngine = {}));
