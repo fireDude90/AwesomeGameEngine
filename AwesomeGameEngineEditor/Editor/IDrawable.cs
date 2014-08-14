@@ -18,7 +18,7 @@ namespace AwesomeGameEngineEditor.Editor {
         /// </summary>
         /// <param name="location">The location of the click</param>
         /// <returns>True if the element was selected, false if not</returns>
-        bool IsSelected(Point location);
+        bool IsClicked(Point location);
 
         /// <summary>
         /// Draws object using the given DrawingContext

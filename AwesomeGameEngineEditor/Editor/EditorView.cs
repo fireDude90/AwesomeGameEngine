@@ -12,10 +12,11 @@ using System.Windows.Media.Imaging;
 namespace AwesomeGameEngineEditor.Editor {
     public class EditorView : FrameworkElement {
         const int GridScrollSpeed = 5;
-        private int GridSize = 25;
+        const int GridSize = 25;
         const int LineThickness = 1;
 
-        public Point position; // Location of grid
+        public Point Position { get; private set; } // Location of grid
+
         Size size;
         Point lastMousePosition;
         bool dragging = false;
@@ -30,7 +31,7 @@ namespace AwesomeGameEngineEditor.Editor {
         public EditorView(MainWindow window) {
             SizeChanged += (sender, e) => {
                 size = e.NewSize;
-                position = new Point(size.Width / 2, size.Height / 2);
+                Position = new Point(size.Width / 2, size.Height / 2);
                 InvalidateVisual();
             };
 
@@ -41,18 +42,26 @@ namespace AwesomeGameEngineEditor.Editor {
 
         protected override void OnMouseMove(MouseEventArgs e) {
             base.OnMouseMove(e);
+
             if (Mouse.LeftButton == MouseButtonState.Pressed) {
+                Point newMousePosition = e.GetPosition(this);
+                
+                // Check if the user is hovering over an object
+                foreach (IDrawable drawable in drawables) {
+                    if (drawable.IsClicked(ScreenToWorld(newMousePosition))) {
+                    }
+                }
+
+                // Handle drag
                 if (dragging) {
-                    Point newMousePosition = e.GetPosition(this);
-                    position = new Point(
-                        position.X + newMousePosition.X - lastMousePosition.X,
-                        position.Y + newMousePosition.Y - lastMousePosition.Y);
-                    lastMousePosition = newMousePosition;
+                    Position = new Point(
+                        Position.X + newMousePosition.X - lastMousePosition.X,
+                        Position.Y + newMousePosition.Y - lastMousePosition.Y);
                 } else {
                     dragging = true;
                     Mouse.Capture(this);
-                    lastMousePosition = e.GetPosition(this);
                 }
+                lastMousePosition = newMousePosition;
                 InvalidateVisual();
             } else {
                 dragging = false;
@@ -61,7 +70,7 @@ namespace AwesomeGameEngineEditor.Editor {
 
             if (Mouse.RightButton == MouseButtonState.Pressed) {
                 log.Text = ScreenToWorld(e.GetPosition(this)).ToString();
-                log.Text += "\n" + position.ToString();
+                log.Text += "\n" + Position.ToString();
             }
         }
 
@@ -70,17 +79,17 @@ namespace AwesomeGameEngineEditor.Editor {
             context.DrawRectangle(background, null, new Rect(new Point(), size));
 
             // Draw lines until they're not visible
-            int x = -(int)position.X + ((int)position.X % GridSize);
+            int x = -(int)Position.X + ((int)Position.X % GridSize);
             while (x < size.Width + GridSize) {
                 context.DrawLine(gridLines,
-                    new Point(x + position.X, 0), new Point(x + position.X, size.Height));
+                    new Point(x + Position.X, 0), new Point(x + Position.X, size.Height));
                 x += GridSize;
             }
 
-            int y = -(int)position.Y + ((int)position.Y % GridSize);
-            while (y < position.Y + size.Height + GridSize) {
+            int y = -(int)Position.Y + ((int)Position.Y % GridSize);
+            while (y < Position.Y + size.Height + GridSize) {
                 context.DrawLine(gridLines,
-                   new Point(0, y + position.Y), new Point(size.Width, y + position.Y));
+                   new Point(0, y + Position.Y), new Point(size.Width, y + Position.Y));
                 y += GridSize;
             }
 
@@ -88,7 +97,7 @@ namespace AwesomeGameEngineEditor.Editor {
             context.DrawEllipse(null, new Pen(Brushes.White, 2), WorldToScreen(new Point(0, 0)), 5, 5);
 
             // switch over to world coordinates
-            context.PushTransform(new TranslateTransform(position.X, position.Y));
+            context.PushTransform(new TranslateTransform(Position.X, Position.Y));
             // Test draw an image
             foreach (IDrawable drawable in drawables) {
                 drawable.Draw(context);
@@ -97,11 +106,11 @@ namespace AwesomeGameEngineEditor.Editor {
         }
 
         private Point ScreenToWorld(Point source) {
-            return new Point(source.X - position.X, source.Y - position.Y);
+            return new Point(source.X - Position.X, source.Y - Position.Y);
         }
 
         private Point WorldToScreen(Point source) {
-            return new Point(source.X + position.X, source.Y + position.Y);
+            return new Point(source.X + Position.X, source.Y + Position.Y);
         }
     }
 }

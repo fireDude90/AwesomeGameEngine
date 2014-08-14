@@ -21,7 +21,7 @@ namespace AwesomeGameEngineEditor.Editor {
             this.Image = image;
         }
 
-        public bool IsSelected(Point location) {
+        public bool IsClicked(Point location) {
             return Rectangle.Contains(location);
         }
 
