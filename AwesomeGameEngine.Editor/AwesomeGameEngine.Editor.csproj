@@ -7,7 +7,7 @@
     <ProjectGuid>{B57EAE74-CAC9-4D1F-9295-F3B799777B0D}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AwesomeGameEngineEditor</RootNamespace>
+    <RootNamespace>AwesomeGameEngine</RootNamespace>
     <AssemblyName>AwesomeGameEngineEditor</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -63,6 +63,9 @@
     </Compile>
     <Compile Include="Editor\EditorView.cs" />
     <Compile Include="Editor\IDrawable.cs" />
+    <Compile Include="Editor\IEntity.cs" />
+    <Compile Include="Editor\Serialization\Project.cs" />
+    <Compile Include="Editor\Serialization\Scene.cs" />
     <Compile Include="Editor\Sprite.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -98,6 +101,17 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Icons\Project.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="dragon1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\Build.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\Files\Document.png" />
+    <Resource Include="Icons\Files\Folder.png" />
+    <Content Include="Templates\index.html" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

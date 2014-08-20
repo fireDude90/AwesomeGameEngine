@@ -6,19 +6,16 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 
-namespace AwesomeGameEngineEditor.Editor {
-    interface IDrawable {
+namespace AwesomeGameEngine.Editor {
+    interface IDrawable : IEntity {
         /// <summary>
         /// Position of thing
         /// </summary>
         Point Position { get; set; }
-
         /// <summary>
-        /// Finds if this thing was selected with a given click
+        /// Bounding box
         /// </summary>
-        /// <param name="location">The location of the click</param>
-        /// <returns>True if the element was selected, false if not</returns>
-        bool IsClicked(Point location);
+        Rect Rectangle { get; }
 
         /// <summary>
         /// Draws object using the given DrawingContext

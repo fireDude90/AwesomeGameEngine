@@ -1,4 +1,9 @@
 ﻿module AwesomeGameEngine {
+    export interface Size {
+        width: number;
+        height: number
+    }
+
     /** Game class. */
     export class Game {
         /** Canvas rendering context */
@@ -16,8 +21,10 @@
          * @param backgroundColor Canvas clear color
          * @param fps Amount of frames per second
          */
-        constructor(canvasSelector: string = "canvas", resourceSelector: string = "#resources", public backgroundColor: string = "lightcoral", private fps: number = 60) {
+        constructor(size: Size = { width: 500, height: 500 }, canvasSelector: string = "canvas", resourceSelector: string = "#resources", public backgroundColor: string = "lightcoral") {
             var canvas = <HTMLCanvasElement>document.querySelector(canvasSelector);
+            canvas.width = size.width;
+            canvas.height = size.height;
             this.Context = canvas.getContext('2d');
             this.contextDimensions = new Vector2(canvas.width, canvas.height);
 
