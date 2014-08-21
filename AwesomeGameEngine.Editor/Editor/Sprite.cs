@@ -20,9 +20,7 @@ namespace AwesomeGameEngine.Editor {
             }
         }
 
-        private bool clicked;
-        private IDrawable selectedObject;
-        private EditorView editor;
+        public bool Selected { get; set; }
 
         public XElement Serialize() {
             XElement element = new XElement("Sprite");
@@ -40,9 +38,9 @@ namespace AwesomeGameEngine.Editor {
             return element;
         }
 
-        public static Sprite Deserialize(XElement element, EditorView editor) {
+        public static Sprite Deserialize(XElement element) {
             BitmapImage image = new BitmapImage(new Uri(element.Element("Image").Attribute("Source").Value, UriKind.RelativeOrAbsolute));
-            Sprite sprite = new Sprite(element.Attribute("Name").Value, image, editor);
+            Sprite sprite = new Sprite(element.Attribute("Name").Value, image);
 
             XElement position = element.Element("Position");
 
@@ -53,39 +51,22 @@ namespace AwesomeGameEngine.Editor {
         }
 
 
-        public Sprite(string name, BitmapImage image, EditorView editor) {
+        public Sprite(string name, BitmapImage image) {
             this.Name = name;
             this.Image = image;
-            this.editor = editor;
-
-            editor.MouseMove += MouseMove;
-            editor.MouseDown += MouseDown;
         }
 
-        public void MouseMove(object sender, MouseEventArgs e) {
-            if (Mouse.LeftButton == MouseButtonState.Pressed) {
-                if (clicked) {
-                    var point = editor.ScreenToWorld(editor.CurrentMousePosition);
-                    // Center on mouse
-                    Position = new Point(point.X - (Image.Width / 2), point.Y - (Image.Height / 2));
-                    editor.InvalidateVisual();
-                }
-            } else if (clicked) { clicked = false; editor.CanDrag = true; }
-        }
-
-        public void MouseDown(object sender, MouseButtonEventArgs e) {
-            clicked = IsClicked(editor.ScreenToWorld(e.GetPosition(editor)));
-            if (clicked) editor.CanDrag = false;
-            editor.InvalidateVisual();
-        }
-
-        public bool IsClicked(Point location) {
-            return Rectangle.Contains(location);
+        public void Center(Point location) {
+            Position = new Point(location.X - (Image.Width / 2), location.Y - (Image.Height / 2));
         }
 
         public void Draw(DrawingContext context) {
             context.DrawImage(Image, Rectangle);
-            if (clicked) context.DrawRectangle(null, new Pen(Brushes.LightCoral, 1), Rectangle);
+            if (Selected) context.DrawRectangle(null, new Pen(Brushes.LightCoral, 1), Rectangle);
+        }
+
+        public override string ToString() {
+            return String.Format("{0}", Name);
         }
     }
 }

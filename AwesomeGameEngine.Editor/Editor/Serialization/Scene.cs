@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Xml.Linq;
 
@@ -19,6 +20,14 @@ namespace AwesomeGameEngine.Editor.Serialization {
 
         public void Add(IEntity entity) {
             entities.Add(entity);
+            BuildEntityView(((MainWindow)App.Current.MainWindow).EntitiesView);
+        }
+
+        private void BuildEntityView(ListView view) {
+            view.Items.Clear();
+            foreach (var entity in entities) {
+                view.Items.Add(new ListBoxItem() { Content = entity.Name, Tag = entity });
+            }
         }
 
         public XElement Serialize() {
@@ -39,7 +48,7 @@ namespace AwesomeGameEngine.Editor.Serialization {
             Scene scene = new Scene(element.Attribute("Name").Value);
 
             foreach (XElement spriteNode in element.Element("Entities").Elements("Sprite")) {
-                scene.Add(Sprite.Deserialize(spriteNode, editor));  
+                scene.Add(Sprite.Deserialize(spriteNode));  
             }
 
             return scene;

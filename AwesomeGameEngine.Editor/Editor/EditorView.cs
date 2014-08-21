@@ -24,9 +24,20 @@ namespace AwesomeGameEngine.Editor {
         /// <summary>
         /// Set to true if someone else is dragging.
         /// </summary>
-        public bool CanDrag { get; set; }
         public Point LastMousePosition { get; private set; }
         public Point CurrentMousePosition { get; private set; }
+
+        private IEntity selectedObject;
+        public IEntity SelectedObject {
+            get { return selectedObject; }
+            set {
+                foreach (IEntity entity in CurrentScene.Entities) {
+                    entity.Selected = false;
+                }
+                selectedObject = value;
+                selectedObject.Selected = true;
+            }
+        }
         private bool dragging = false;
 
         // Grid colors
@@ -43,7 +54,6 @@ namespace AwesomeGameEngine.Editor {
         public TextBox Log { get; private set; } // Reference to display text on screen
 
         public EditorView(MainWindow window) {
-            CanDrag = true;
             SizeChanged += (sender, e) => {
                 size = e.NewSize;
                 // Start the grid centered
@@ -53,16 +63,29 @@ namespace AwesomeGameEngine.Editor {
 
             // This is temporary
             Log = window.Log;
-            List<IDrawable> drawables = new List<IDrawable>();
-
 
             Project = new Project();
             Scene scene = new Scene("TestScene");
-            CurrentScene = scene;
-            scene.Add(new Sprite("Test A", new BitmapImage(new Uri("dragon1.png", UriKind.RelativeOrAbsolute)), this));
-            scene.Add(new Sprite("Test B", new BitmapImage(new Uri("dragon1.png", UriKind.RelativeOrAbsolute)), this));
+            scene.Add(new Sprite("Test A", new BitmapImage(new Uri("dragon1.png", UriKind.RelativeOrAbsolute))));
+            scene.Add(new Sprite("Test B", new BitmapImage(new Uri("dragon1.png", UriKind.RelativeOrAbsolute))));
             Project.Add(scene);
+            CurrentScene = scene;
             Log.Text = Project.Serialize().ToString();
+        }
+
+        private readonly string[] ImageExtensions = { ".jpeg", ".jpg", ".png", ".gif" };
+
+        protected override void OnDrop(DragEventArgs e) {
+            Uri path = (Uri)e.Data.GetData("Uri");
+            string extension = System.IO.Path.GetExtension(path.ToString());
+            // Check that the file is an image (PNG)
+            if (ImageExtensions.Contains(extension.ToLower())) {
+                Sprite sprite = new Sprite("New Object", new BitmapImage(new Uri(Uri.UnescapeDataString(path.ToString()), UriKind.RelativeOrAbsolute)));
+                sprite.Center(ScreenToWorld(e.GetPosition(this)));
+
+                CurrentScene.Add(sprite);
+                InvalidateVisual();
+            }
         }
 
         protected override void OnMouseMove(MouseEventArgs e) {
@@ -72,23 +95,36 @@ namespace AwesomeGameEngine.Editor {
                 // Check for click on object
                 foreach (IEntity entity in CurrentScene.Entities) {
                     if (entity is IDrawable) {
-                        if (((IDrawable)entity).Rectangle.Contains(CurrentMousePosition)) {
-
+                        entity.Selected = false;
+                        if (!dragging && ((IDrawable)entity).Rectangle.Contains(ScreenToWorld(CurrentMousePosition))) {
+                            // entity was selected
+                            selectedObject = entity;
                         }
                     }
                 }
 
+
                 // Handle drag
                 Mouse.Capture(this);
-                if (dragging && CanDrag) {
-                    Position = new Point(
-                        Position.X + CurrentMousePosition.X - LastMousePosition.X,
-                        Position.Y + CurrentMousePosition.Y - LastMousePosition.Y);
+                if (dragging) {
+                    if (selectedObject == null) {
+                        Position = new Point(
+                            Position.X + CurrentMousePosition.X - LastMousePosition.X,
+                            Position.Y + CurrentMousePosition.Y - LastMousePosition.Y);
+                    } else {
+                        selectedObject.Selected = true;
+                        Point delta = (Point)(CurrentMousePosition - LastMousePosition);
+                        ((IDrawable)selectedObject).Position = new Point(
+                            ((IDrawable)selectedObject).Position.X + delta.X,
+                            ((IDrawable)selectedObject).Position.Y + delta.Y
+                            );
+                    }
                 } else {
                     dragging = true;
                 }
                 InvalidateVisual();
             } else {
+                selectedObject = null;
                 dragging = false;
                 Mouse.Capture(null);
             }

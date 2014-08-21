@@ -27,11 +27,14 @@ namespace AwesomeGameEngine {
             InitializeFiles();
         }
 
+        #region File Tree
         private void InitializeFiles() {
-            FilesTree.Items.Add(InitializeDirectory(new DirectoryInfo(@"..\")));
+            FilesTree.Items.Add(InitializeDirectory(new DirectoryInfo(".")));
         }
 
-        private TreeViewItem InitializeDirectory(DirectoryInfo information) {
+        private TreeViewItem InitializeDirectory(DirectoryInfo information, DirectoryInfo root = null) {
+            root = root == null ? information : root;
+
             StackPanel folderStack = new StackPanel() { Orientation = Orientation.Horizontal };
             Label folderLabel = new Label() { Content = information.Name };
             folderStack.Children.Add(new Image() { Source = new BitmapImage(new Uri("Icons/Files/Folder.png", UriKind.RelativeOrAbsolute)) });
@@ -46,15 +49,39 @@ namespace AwesomeGameEngine {
                 filePanel.Children.Add(new Image() { Source = new BitmapImage(new Uri("Icons/Files/Document.png", UriKind.RelativeOrAbsolute)) });
                 filePanel.Children.Add(fileLabel);
 
-                item.Items.Add(new TreeViewItem() { Header = filePanel });
+                item.Items.Add(new TreeViewItem() { Header = filePanel, Tag = new Uri(root.FullName + '/').MakeRelativeUri(new Uri(file.FullName)) });
             }
 
             foreach (DirectoryInfo directory in information.EnumerateDirectories()) {
-                item.Items.Add(InitializeDirectory(directory));
+                item.Items.Add(InitializeDirectory(directory, root));
             }
 
             return item;
         }
+
+        private void ListPreviewMouseMove(object sender, MouseEventArgs e) {
+            if (e.LeftButton == MouseButtonState.Pressed) {
+                //ListView list = sender as ListView;
+                TreeViewItem item = FindAncestor<TreeViewItem>((DependencyObject)e.OriginalSource);
+                if (item == null) return;
+
+                Uri path = (Uri)item.Tag;
+                if (path == null) return;
+                DataObject data = new DataObject("Uri", path);
+                DragDrop.DoDragDrop(item, data, DragDropEffects.Copy);
+            }
+        }
+
+        private T FindAncestor<T>(DependencyObject current) where T : DependencyObject {
+            do {
+                if (current is T) return (T)current;
+                current = VisualTreeHelper.GetParent(current);
+            }
+            while (current != null);
+            return null;
+        }
+
+        #endregion
 
         public void BuildProject(object sender, RoutedEventArgs e) {
             this.Log.Text = (this.EditorView.Content as EditorView).Project.Serialize().ToString();
@@ -65,6 +92,13 @@ namespace AwesomeGameEngine {
             editor.Project = Project.Deserialize(System.Xml.Linq.XDocument.Parse(Log.Text), editor);
             editor.CurrentScene = editor.Project["TestScene"];
             editor.InvalidateVisual();
+        }
+
+        private void EntitiesClick(object sender, RoutedEventArgs e) {
+            var item = (ListBoxItem)((ListView)sender).SelectedItem;
+            if (item != null) {
+                ((EditorView)EditorView.Content).SelectedObject = (IEntity)(item.Tag);
+            }
         }
     }
 }

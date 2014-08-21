@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace AwesomeGameEngine.Editor.Serialization {
-    [Serializable()]
     public class Project {
         private Dictionary<string, Scene> scenes = new Dictionary<string, Scene>();
         public Scene this[string name] {
