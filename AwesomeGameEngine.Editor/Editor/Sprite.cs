@@ -23,14 +23,14 @@ namespace AwesomeGameEngine.Editor {
         public bool Selected { get; set; }
 
         public XElement Serialize() {
-            XElement element = new XElement("Sprite");
+            var element = new XElement("Sprite");
             element.SetAttributeValue("Name", Name);
 
-            XElement image = new XElement("Image");
+            var image = new XElement("Image");
             image.SetAttributeValue("Source", Image.UriSource.ToString());
             element.Add(image);
 
-            XElement position = new XElement("Position");
+            var position = new XElement("Position");
             position.SetAttributeValue("X", Position.X);
             position.SetAttributeValue("Y", Position.Y);
             element.Add(position);
@@ -39,10 +39,10 @@ namespace AwesomeGameEngine.Editor {
         }
 
         public static Sprite Deserialize(XElement element) {
-            BitmapImage image = new BitmapImage(new Uri(element.Element("Image").Attribute("Source").Value, UriKind.RelativeOrAbsolute));
-            Sprite sprite = new Sprite(element.Attribute("Name").Value, image);
+            var image = new BitmapImage(new Uri(element.Element("Image").Attribute("Source").Value, UriKind.RelativeOrAbsolute));
+            var sprite = new Sprite(element.Attribute("Name").Value, image);
 
-            XElement position = element.Element("Position");
+            var position = element.Element("Position");
 
             sprite.Position = new Point(double.Parse(position.Attribute("X").Value),
                 double.Parse(position.Attribute("Y").Value));
@@ -60,9 +60,9 @@ namespace AwesomeGameEngine.Editor {
             Position = new Point(location.X - (Image.Width / 2), location.Y - (Image.Height / 2));
         }
 
-        public void Draw(DrawingContext context) {
+        public void Draw(DrawingContext context, double scale) {
             context.DrawImage(Image, Rectangle);
-            if (Selected) context.DrawRectangle(null, new Pen(Brushes.LightCoral, 1), Rectangle);
+            if (Selected) context.DrawRectangle(null, new Pen(Brushes.LightCoral, 1.5 / scale), Rectangle);
         }
 
         public override string ToString() {

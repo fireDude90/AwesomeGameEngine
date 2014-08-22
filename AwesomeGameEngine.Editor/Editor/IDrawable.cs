@@ -21,6 +21,7 @@ namespace AwesomeGameEngine.Editor {
         /// Draws object using the given DrawingContext
         /// </summary>
         /// <param name="context">Context to draw with</param>
-        void Draw(DrawingContext context);
+        /// <param name="scale">Context scale</param>
+        void Draw(DrawingContext context, double scale);
     }
 }

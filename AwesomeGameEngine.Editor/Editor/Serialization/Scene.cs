@@ -10,6 +10,7 @@ using System.Xml.Linq;
 namespace AwesomeGameEngine.Editor.Serialization {
     public class Scene {
         public string Name { get; set; }
+        public bool IsDefaultScene { get; set; }
 
         private List<IEntity> entities = new List<IEntity>();
         public List<IEntity> Entities { get { return entities; } }
@@ -31,11 +32,12 @@ namespace AwesomeGameEngine.Editor.Serialization {
         }
 
         public XElement Serialize() {
-            XElement file = new XElement("Scene");
+            var file = new XElement("Scene");
             file.SetAttributeValue("Name", Name);
+            file.SetAttributeValue("IsDefaultScene", IsDefaultScene);
 
-            XElement entityNode = new XElement("Entities");
-            foreach (IEntity entity in entities) {
+            var entityNode = new XElement("Entities");
+            foreach (var entity in entities) {
                 entityNode.Add(entity.Serialize());
             }
 
@@ -44,20 +46,22 @@ namespace AwesomeGameEngine.Editor.Serialization {
             return file;
         }
 
-        public static Scene Deserialize(XElement element, EditorView editor) {
-            Scene scene = new Scene(element.Attribute("Name").Value);
+        public static Scene Deserialize(XElement element) {
+            var scene = new Scene(element.Attribute("Name").Value) {
+                IsDefaultScene = bool.Parse(element.Attribute("IsDefaultScene").Value)
+            };
 
-            foreach (XElement spriteNode in element.Element("Entities").Elements("Sprite")) {
+            foreach (var spriteNode in element.Element("Entities").Elements("Sprite")) {
                 scene.Add(Sprite.Deserialize(spriteNode));  
             }
 
             return scene;
         }
 
-        public void Draw(DrawingContext context) {
-            foreach (IEntity entity in entities) {
+        public void Draw(DrawingContext context, double scale) {
+            foreach (var entity in entities) {
                 if (entity is IDrawable) {
-                    ((IDrawable)entity).Draw(context);
+                    ((IDrawable)entity).Draw(context, scale);
                 }
             }
         }

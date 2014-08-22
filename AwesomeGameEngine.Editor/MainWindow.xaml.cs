@@ -21,9 +21,12 @@ namespace AwesomeGameEngine {
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window {
+        public string ProjectPath { get; private set; }
         public MainWindow() {
+            ProjectPath = null;
+
             InitializeComponent();
-            EditorView.Content = new EditorView(this);
+            EditorView.Content = new EditorView();
             InitializeFiles();
         }
 
@@ -83,15 +86,57 @@ namespace AwesomeGameEngine {
 
         #endregion
 
-        public void BuildProject(object sender, RoutedEventArgs e) {
-            this.Log.Text = (this.EditorView.Content as EditorView).Project.Serialize().ToString();
+        private void NewProject(object sender, RoutedEventArgs e) {
+            var shouldSave = MessageBox.Show("Save this project?", "Creating new project", MessageBoxButton.YesNoCancel);
+            switch (shouldSave) {
+                case MessageBoxResult.Yes:
+                    SaveProject(null, new RoutedEventArgs()); break;
+                case MessageBoxResult.No:
+                    break;
+                case MessageBoxResult.Cancel:
+                    return;
+            }
+            ProjectPath = null;
+            var editor = (EditorView)EditorView.Content;
+            editor.Project = new Project();
+            var scene = new Scene("Default Scene") { IsDefaultScene = true };
+
+            editor.InvalidateVisual();
         }
 
-        public void TestProjectLoad(object sender, RoutedEventArgs e) {
-            var editor = this.EditorView.Content as EditorView;
-            editor.Project = Project.Deserialize(System.Xml.Linq.XDocument.Parse(Log.Text), editor);
-            editor.CurrentScene = editor.Project["TestScene"];
-            editor.InvalidateVisual();
+        public void SaveProject(object sender, RoutedEventArgs e) {
+            var text = (this.EditorView.Content as EditorView).Project.Serialize().ToString();
+            if (ProjectPath != null) File.WriteAllText(ProjectPath, text);
+            else {
+                var dialog = new Microsoft.Win32.SaveFileDialog() { 
+                    FileName = "Project",
+                    DefaultExt = ".xml",
+                    Filter = "XML Project Files (*.xml)|*.xml"
+                };
+
+                var result = dialog.ShowDialog(this);
+                if (result == true) {
+                    File.WriteAllText(dialog.FileName, text);
+                }
+            }
+        }
+
+        public void OpenProject(object sender, RoutedEventArgs e) {
+            var dialog = new Microsoft.Win32.OpenFileDialog() {
+                DefaultExt = ".xml",
+                Filter = "XML Project Files (*.xml)|*.xml"
+            };
+
+            var result = dialog.ShowDialog(this);
+            if (result == true) {
+                var editor = (EditorView)EditorView.Content;
+                ProjectPath = dialog.FileName;
+
+                Directory.SetCurrentDirectory(System.IO.Path.GetDirectoryName(ProjectPath));
+
+                editor.Project = Project.Deserialize(System.Xml.Linq.XDocument.Parse(File.ReadAllText(dialog.FileName)));
+                editor.InvalidateVisual();
+            }
         }
 
         private void EntitiesClick(object sender, RoutedEventArgs e) {

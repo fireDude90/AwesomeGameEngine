@@ -61,6 +61,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Editor\Counters.cs" />
     <Compile Include="Editor\EditorView.cs" />
     <Compile Include="Editor\IDrawable.cs" />
     <Compile Include="Editor\IEntity.cs" />
@@ -111,6 +112,7 @@
   <ItemGroup>
     <Resource Include="Icons\Files\Document.png" />
     <Resource Include="Icons\Files\Folder.png" />
+    <Resource Include="Icons\Open.png" />
     <Content Include="Templates\index.html" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

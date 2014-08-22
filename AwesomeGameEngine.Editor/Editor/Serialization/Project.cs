@@ -14,18 +14,29 @@ namespace AwesomeGameEngine.Editor.Serialization {
             }
         }
 
+        private string currentScene = null;
+
+        public Scene CurrentScene {
+            get { return scenes[currentScene]; }
+        }
+
+        public Scene DefaultScene {
+            get { return scenes.Where(pair => pair.Value.IsDefaultScene).First().Value; }
+        }
+
         public Project() { }
 
         public void Add(Scene scene) {
+            if (currentScene == null) currentScene = scene.Name;
             scenes.Add(scene.Name, scene);
         }
 
         public XDocument Serialize() {
-            XDocument document = new XDocument(
+            var document = new XDocument(
                 new XComment(" Project file created by AwesomeGameEngine ")
                 );
 
-            XElement root = new XElement("Project");
+            var root = new XElement("Project");
             document.Add(root);
 
             foreach (var scene in scenes) {
@@ -35,11 +46,11 @@ namespace AwesomeGameEngine.Editor.Serialization {
             return document;
         }
 
-        public static Project Deserialize(XDocument document, EditorView editor) {
-            Project project = new Project();
+        public static Project Deserialize(XDocument document) {
+            var project = new Project();
 
-            foreach (XElement sceneElement in document.Root.Elements("Scene")) {
-                project.Add(Scene.Deserialize(sceneElement, editor));
+            foreach (var sceneElement in document.Root.Elements("Scene")) {
+                project.Add(Scene.Deserialize(sceneElement));
             }
 
             return project;
